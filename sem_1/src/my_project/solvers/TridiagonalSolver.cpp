@@ -6,6 +6,7 @@
 
 namespace Slae::Solvers
 {
+
     std::vector<double> solveThreeDiagonal(const Slae::Matrix::ThreeDiagonalMatrix &matrix, const std::vector<double> &col)
     {
         if (matrix.rows() != col.size())
@@ -19,25 +20,25 @@ namespace Slae::Solvers
         int n = col.size();
 
         std::vector<double> result(n);
-        std::vector<double> gamma(n - 1);
-        std::vector<double> betta(n - 1);
 
-        gamma.at(0) = - matrix(0, 2) / matrix(0, 1);
-        betta.at(0) = col.at(0) / matrix(0, 1);
+        std::vector<std::array<double, 2>> params(n - 1);
+
+        params[0][0] = - matrix(0, 2) / matrix(0, 1);
+        params[0][1] = col.at(0) / matrix(0, 1);
 
         for (int i = 1; i < col.size() - 1; i++)
         {
-            gamma.at(i) = - matrix(i, 2) / (matrix(i, 0) * gamma.at(i - 1) + matrix(i, 1));
-            betta.at(i) = (col.at(i) - matrix(i, 0) * betta.at(i - 1)) /
-                    (matrix(i, 0) * gamma.at(i - 1) + matrix(i, 1));
+            params[i][0] = - matrix(i, 2) / (matrix(i, 0) * params[i - 1][0] + matrix(i, 1));
+            params[i][1] = (col[i] - matrix(i, 0) * params[i - 1][1]) /
+                    (matrix(i, 0) * params[i - 1][0] + matrix(i, 1));
         }
 
-        result.at(n - 1) = (col.at(n - 1) - matrix(n - 1, 0) * betta.at(n - 2)) /
-                (matrix(n - 1, 0) * gamma.at(n - 2) + matrix(n - 1, 1));
+        result[n - 1] = (col[n - 1] - matrix(n - 1, 0) * params[n - 2][1]) /
+                (matrix(n - 1, 0) * params[n - 2][0] + matrix(n - 1, 1));
 
         for (int i = n - 2; i >= 0; i--)
         {
-            result.at(i) = gamma.at(i) * result.at(i + 1) + betta.at(i);
+            result[i] = params[i][0] * result[i + 1] + params[i][1];
         }
 
         return result;

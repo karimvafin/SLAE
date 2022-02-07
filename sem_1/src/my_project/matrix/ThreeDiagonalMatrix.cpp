@@ -9,7 +9,9 @@ using std::vector;
 
 namespace Slae::Matrix
 {
+
     ThreeDiagonalMatrix::ThreeDiagonalMatrix(unsigned int size) : data_(size) {}
+
 
     ThreeDiagonalMatrix ThreeDiagonalMatrix::Zero(unsigned int size)
     {
@@ -21,6 +23,7 @@ namespace Slae::Matrix
 
         return result;
     }
+
 
     double & ThreeDiagonalMatrix::operator()(int i, int j)
     {
@@ -46,6 +49,7 @@ namespace Slae::Matrix
         return data_[i][j];
     }
 
+
     const double & ThreeDiagonalMatrix::operator()(int i, int j) const
     {
 #ifndef NDEBUG
@@ -69,6 +73,7 @@ namespace Slae::Matrix
 #endif
         return data_[i][j];
     }
+
 
     unsigned int ThreeDiagonalMatrix::rows() const noexcept
     {
