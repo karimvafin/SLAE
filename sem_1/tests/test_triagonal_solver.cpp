@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include <iostream>
 #include "my_project/solvers/TridiagonalSolver.hpp"
+#include "my_project/utility/overloads.hpp"
 
 TEST(TRIDIAGONALSOLVER, TRIDIAGONALSOLVER_HI)
 {
@@ -26,11 +27,17 @@ TEST(TRIDIAGONALSOLVER, TRIDIAGONALSOLVER_HI)
 
 //
 
-    std::vector<double> solution = Slae::Solvers::solveThreeDiagonal(matrix, col);
+    std::vector<double> sol = Slae::Solvers::solveThreeDiagonal(matrix, col);
 
-    for (auto &it : solution)
-    {
-        std::cout << it << " ";
-    }
+    bool result;
+
+    std::vector<double> true_sol = {5, 0, 5};
+
+    if (sol == true_sol)
+        result = true;
+    else
+        result = false;
+
+    ASSERT_TRUE(result);
 }
 
