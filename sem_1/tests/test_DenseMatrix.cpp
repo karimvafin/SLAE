@@ -4,8 +4,8 @@
 
 #include "gtest/gtest.h"
 #include <iostream>
-#include "my_project/dense/densematrix.hpp"
-#include "my_project/utility/overloads.hpp"
+#include "project/dense/densematrix.hpp"
+#include "project/utility/overloads.hpp"
 
 TEST(DENSEMATRIX, DENSEMATRIX_HI)
 {
