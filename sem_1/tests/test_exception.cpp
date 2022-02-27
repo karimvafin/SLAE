@@ -4,6 +4,7 @@
 
 #include "gtest/gtest.h"
 #include <my_project/SlaeBaseException.hpp>
+#include <vector>
 void throwException() { throw Slae::SlaeBaseExceptionCpp("Hi"); }
 
 TEST(EXCEPTION, EXCEPTION_HI) {
