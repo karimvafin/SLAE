@@ -7,7 +7,8 @@
 #include "vector"
 #include "cmath"
 
-enum class NormType{
+enum class NormType
+{
     FirstNorm = 1,
     SecondNorm = 2,
     ThirdNorm = 3,
@@ -21,7 +22,7 @@ const T& norm(const std::vector<T>& vector, NormType normType)
     {
         for (const auto& elm: vector)
         {
-            abs = std::abs(elm);
+            T abs = std::abs(elm);
             if (abs > norm) norm = abs;
         }
     }
