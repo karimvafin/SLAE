@@ -13,140 +13,146 @@
 #include "project/SlaeBaseException.hpp"
 
 template<typename T>
-class CSR {
+class CSR
+{
 public:
-    using elm_t = T;          // Тип данных элементов матрицы
-    using idx_t = std::size_t;// Тип индекса
+    using elm_t = T;           // type of matrix element
+    using idx_t = std::size_t; // index type
 
 private:
-    const idx_t H, W;         //Размеры матрицы
-    std::vector<elm_t> values;//Вектор значений (размер N - кол-во ненулевых элементов)
-    std::vector<idx_t> cols;  // Вектор номеров столбцов, соответствующих значениям (размер N - кол-во ненулевых элементов)
-    std::vector<idx_t> rows;  // Вектор индексации строк размера H+1, первый элемент = 0 в качестве запирающего
+    const idx_t row_size_, col_size_; // matrix dimensions
+    std::vector<elm_t> values_;       // vector of non-zero values
+    std::vector<idx_t> cols_;         // vector of non-zero element column-index
+    std::vector<idx_t> rows_;         // vector of amounts of non-zero elements from the beginning of the matrix to the end of row
+
+    template<typename TT>
+    friend std::vector<TT> Jacobi(const CSR<TT> &A, const std::vector<TT> &b, const std::vector<TT> &initialState, const TT &tolerance);
 
 public:
+
     /***
-     * Конструктор разреженной матрицы по готовым векторам с внутренней структурой
-     * @param h число строк
-     * @param w число столбцов
-     * @param v вектор ненулевых значений
-     * @param c вектор индексации столбцов
-     * @param r вектор индексации строк
+     * Constructor of CSR matrix with prepared vectors of values, columns and rows (CSR format)
+     * @param row_size number of rows in matrix
+     * @param col_size number of columns in matrix
+     * @param values vector of non-zero matrix elements
+     * @param columns vector of non-zero element column-index
+     * @param rows
      */
-    CSR(const idx_t &h, const idx_t &w, const std::vector<T>& v,const std::vector<T>& c, const std::vector<T>& r): H(h), W(w)
+    CSR(const idx_t &row_size, const idx_t &col_size, const std::vector<T>& values, const std::vector<T>& columns,
+        const std::vector<T>& rows): row_size_(row_size), col_size_(col_size)
     {
-        values = v;
-        cols = c;
-        rows = r;
+        values_ = values;
+        cols_ = columns;
+        rows_ = rows;
     }
 
     /***
-     * Конструктор разреженной матрицы по сету из Triplet
-     * @param h число строк
-     * @param w число столбцов
+     * Constructor of CSR matrix via set of Triplets (Triplet: (i, j, value)); i, j begin from 0
+     * @param row_size number of rows in matrix
+     * @param col_size number of columns in matrix
      */
-    CSR(const idx_t &h, const idx_t &w, const std::set<Triplet<elm_t>>& in): H(h), W(w)
+    CSR(const idx_t &row_size, const idx_t &col_size, const std::set<Triplet<elm_t>>& in):
+    row_size_(row_size), col_size_(col_size)
     {
-        values.resize(in.size());
-        cols.resize(in.size());
-        rows.resize(h + 1, 0);
+        values_.resize(in.size());
+        cols_.resize(in.size());
+        rows_.resize(row_size + 1, 0);
+
         int countInRow = 0;
         int currRow = 0;
         auto it = in.begin();
+
         for (idx_t k = 0; k < in.size(); ++k)
         {
+            values_[k] = it->value;
+            cols_[k] = it->j;
             while (currRow < it->i)
             {
-                rows[currRow + 1] = rows[currRow] + countInRow;
+                rows_[currRow + 1] = rows_[currRow] + countInRow;
                 ++currRow;
                 countInRow = 0;
             }
-            values[k] = it->value;
-            cols[k] = it->j;
             ++countInRow;
             it = std::next(it);
         }
-        for (++currRow; currRow <= H; ++currRow)
+
+        for (++currRow; currRow <= row_size_; ++currRow)
         {
-            rows[currRow] = in.size();
+            rows_[currRow] = in.size();
         }
     }
 
     /***
-     * Оператор получения элемента матрицы по индексам
-     * @param i Номер строки
-     * @param j Номер столбца
-     * @return Значение элемента в позиции (i, j)
+     * Operator to get (i, j) element of matrix
+     * @param i row number (begins from 0)
+     * @param j column number (begins from 0)
+     * @return (i, j) element of matrix
      */
     const elm_t &operator()(idx_t const i, idx_t const j) const
     {
-        // найти количество не нулей на данной строке
-        // пропускаем количество элементов до этой строке
-        // итерируемся и сравниваем столбец
-
-        idx_t skip = this->rows[i];
-        for (idx_t k = skip; k < this->rows[i + 1]; ++k)
+        idx_t skip = rows_[i];
+        for (idx_t k = skip; k < rows_[i + 1]; ++k)
         {
-            if (this->cols[k] == j)
-                return this->values[k];
+            if (cols_[k] == j)
+                return values_[k];
         }
         return static_cast<elm_t>(0);
     }
 
     /***
-     * Оператор умножения матрицы на вектор
-     * @param b Вектор, на который умножается матрица
-     * @return Вектор - результат перемножения
+     * Operator of matrix and column multiplication
+     * @param b column to multiplicate
+     * @return result-vector of multiplication
      */
     std::vector<elm_t> operator*(const std::vector<elm_t> &b) const
     {
 #ifndef NDEBUG
-        if (W != b.size())
+        if (col_size_ != b.size())
         {
             std::stringstream buff;
-            buff << "Matrix and column dimensions are not equal! Matrix size: " << H << "x" << W << ". Column size: "
-                 << b.size() << ". File: " << __FILE__ << ". Line: " << __LINE__;
+            buff << "Matrix and column dimensions are not equal! Matrix size: " << row_size_<< "x" << col_size_
+            << ". Column size: " << b.size() << ". File: " << __FILE__ << ". Line: " << __LINE__;
             throw Slae::SlaeBaseExceptionCpp(buff.str());
         }
 #endif //NDEBUG
-        std::vector<elm_t> result(this->H);
-        for (idx_t i = 0; i < H; ++i)
+        std::vector<elm_t> result(col_size_);
+        for (idx_t i = 0; i < col_size_; ++i)
         {
-            idx_t skip = this->rows[i];
-            idx_t count = this->rows[i + 1] - skip;
+            idx_t skip = rows_[i];
+            idx_t count = rows_[i + 1] - skip;
             for (idx_t k = skip; k < skip + count; ++k)
             {
-                result[i] += values[k] * b[cols[k]];
+                result[i] += values_[k] * b[cols_[k]];
             }
         }
 
         return result;
     }
 
-    [[nodiscard]] idx_t getW() const
+    [[nodiscard]] idx_t get_col_size() const
     {
-        return W;
+        return col_size_;
     }
 
-    [[nodiscard]] idx_t getH() const
+    [[nodiscard]] idx_t get_row_size() const
     {
-        return H;
+        return row_size_;
     }
 };
 
 /***
- * Оператор вывода CSR матрицы в поток вывода
- * @param os Поток вывода
- * @param A Матрица
- * @return ostream -- поток вывода
+ * CSR matrix output operator
+ * @param os output stream
+ * @param matrix
+ * @return ostream
  */
 template<typename T>
-std::ostream &operator<<(std::ostream &os, const CSR<T> &A)
+std::ostream &operator<<(std::ostream &os, const CSR<T> &matrix)
 {
-    for (int i = 0; i < A.getH(); ++i)
+    for (int i = 0; i < matrix.get_row_size(); ++i)
     {
-        for (int j = 0; j < A.getW(); ++j)
-            os << A(i, j) << " ";
+        for (int j = 0; j < matrix.get_col_size(); ++j)
+            os << matrix(i, j) << " ";
         os << std::endl;
     }
 
