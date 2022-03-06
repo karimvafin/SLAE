@@ -4,8 +4,8 @@
 
 #include "gtest/gtest.h"
 #include <iostream>
-#include "my_project/solvers/TridiagonalSolver.hpp"
-#include "my_project/utility/overloads.hpp"
+#include "project/solvers/TridiagonalSolver.hpp"
+#include "project/utility/overloads.hpp"
 
 TEST(TRIDIAGONALSOLVER, TRIDIAGONALSOLVER_HI)
 {

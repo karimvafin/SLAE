@@ -6,6 +6,8 @@
 #define SLAE_JACOBI_HPP
 #include "../sparse/CSR.hpp"
 #include "project/utility/Norm.hpp"
+#include "project/utility/overloads.hpp"
+
 template<typename T>
 std::vector<T> Jacobi(const CSR<T> &A, const std::vector<T> &b, const std::vector<T> &initialState, const T &tolerance)
 {
@@ -17,7 +19,7 @@ std::vector<T> Jacobi(const CSR<T> &A, const std::vector<T> &b, const std::vecto
 
     while (norm(r, NormType::ThirdNorm) > tolerance)
     {
-        for (int i = 0; i < A.sizeH(); ++i)
+        for (int i = 0; i < A.get_row_size(); ++i)
         {
             sum = static_cast<T>(0);
             int skip = A.rows[i];
@@ -35,6 +37,6 @@ std::vector<T> Jacobi(const CSR<T> &A, const std::vector<T> &b, const std::vecto
     }
 
     return currentState;
-};
+}
 
 #endif//SLAE_JACOBI_HPP

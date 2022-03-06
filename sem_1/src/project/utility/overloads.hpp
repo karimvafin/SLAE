@@ -45,7 +45,17 @@ T operator*(const std::vector<T> &a, const std::vector<T> &b);
  * @return Результат вычитания векторов
  */
 template<typename T>
-std::vector<T> operator-(const std::vector<T> &a, const std::vector<T> &b);
+std::vector<T> operator-(const std::vector<T> &a, const std::vector<T> &b)
+{
+    std::vector<T> result(a.size());
+    for (int i = 0; i < a.size(); i++)
+    {
+        result[i] = a[i] - b[i];
+    }
+
+    return result;
+}
+
 
 /***
  * Сложение двух векторов
@@ -55,7 +65,16 @@ std::vector<T> operator-(const std::vector<T> &a, const std::vector<T> &b);
  * @return Результат сложения векторов
  */
 template<typename T>
-std::vector<T> operator+(const std::vector<T> &a, const std::vector<T> &b);
+std::vector<T> operator+(const std::vector<T> &a, const std::vector<T> &b)
+{
+    std::vector<T> result(a.size());
+    for (int i = 0; i < a.size(); i++)
+    {
+        result[i] = a[i] + b[i];
+    }
+
+    return result;
+}
 
 template<typename T>
 std::ostream &operator<<(std::ostream &os, const std::vector<T> &b)
