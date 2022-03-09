@@ -7,10 +7,17 @@
 
 #include <project/utility/Norm.hpp>
 #include "../sparse/CSR.hpp"
+#include "project/utility/overloads.hpp"
 
 template<typename T>
 std::vector<T> GaussSeidel(const CSR<T> &A, const std::vector<T> &b, const std::vector<T> &initialState, const T &tolerance)
 {
+#ifndef NDEBUG
+    if (A.get_row_size() != b.size())
+    {
+
+    }
+#endif //NDEBUG
     std::vector<T> r = A * initialState - b;
     std::vector<T> currentState = initialState;
     std::vector<T> tempState(currentState.size());
@@ -20,11 +27,11 @@ std::vector<T> GaussSeidel(const CSR<T> &A, const std::vector<T> &b, const std::
         for (int i = 0; i < A.get_row_size(); ++i)
         {
             sum = static_cast<T>(0);
-            int skip = A.rows[i];
-            int count = A.rows[i + 1] - skip;
+            int skip = A.rows_[i];
+            int count = A.rows_[i + 1] - skip;
             for (int k = skip; k < skip + count; ++k)
             {
-                if (A.cols[k] != i) sum += A.values[k] * currentState[i];
+                if (A.cols_[k] != i) sum += A.values_[k] * currentState[i];
             }
 
             currentState[i] = (b[i] - sum) / A(i, i);

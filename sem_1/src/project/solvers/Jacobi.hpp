@@ -22,12 +22,12 @@ std::vector<T> Jacobi(const CSR<T> &A, const std::vector<T> &b, const std::vecto
         for (int i = 0; i < A.get_row_size(); ++i)
         {
             sum = static_cast<T>(0);
-            int skip = A.rows[i];
-            int count = A.rows[i + 1] - skip;
+            int skip = A.rows_[i];
+            int count = A.rows_[i + 1] - skip;
             for (int k = skip; k < skip + count; ++k)
             {
-                if (A.cols[k] != i)
-                    sum += A.values[k] * currentState[i];
+                if (A.cols_[k] != i)
+                    sum += A.values_[k] * currentState[i];
             }
             tempState[i] = (b[i] - sum) / A(i, i);
         }
