@@ -7,42 +7,31 @@
 #include <iosfwd>
 #include <vector>
 #include "operations.cpp"
-/***
- * Умножение числа на вектор
- * @tparam T Тип числа
- * @param k Число
- * @param b Вектор
- * @return Результат умножения
- */
-template<typename T>
-std::vector<T> operator*(const T &k, const std::vector<T> &b);
 
 /***
- * Умножение вектора на число
- * @tparam T Тип числа
- * @param b Вектор
- * @param k Число
- * @return Результат умножения
+ * Scalar product of two vectors
+ * @tparam T template type
+ * @param a first vector
+ * @param b second vector
+ * @return result of scalar product
  */
 template<typename T>
-std::vector<T> operator*(const std::vector<T> &b, const T &k);
+T operator*(const std::vector<T> &a, const std::vector<T> &b)
+{
+    std::vector<T> result(a.size());
+    for (int i = 0; i < a.size(); i++)
+    {
+        result[i] = a[i] * b[i];
+    }
+    return result;
+}
 
 /***
- * Скалярное перемножение векторов
- * @tparam T Тип элементов векторов
- * @param a Первый вектор
- * @param b Второй вектор
- * @return Результат скалярного перемножения
- */
-template<typename T>
-T operator*(const std::vector<T> &a, const std::vector<T> &b);
-
-/***
- * Вычитание двух векторов
- * @tparam T Тип элементов векторов
- * @param a Первый вектор
- * @param b Второй вектор
- * @return Результат вычитания векторов
+ * Subtraction of two vector
+ * @tparam T template type
+ * @param a first vector
+ * @param b second vector
+ * @return result of vector subtraction
  */
 template<typename T>
 std::vector<T> operator-(const std::vector<T> &a, const std::vector<T> &b)
@@ -56,13 +45,41 @@ std::vector<T> operator-(const std::vector<T> &a, const std::vector<T> &b)
     return result;
 }
 
+/***
+ * Operator of vector and number multiplication
+ * @tparam T template type
+ * @param alpha number
+ * @param b vector
+ * @return vector alpha * b
+ */
+template <typename T>
+std::vector<T> operator*(const T &alpha, const std::vector<T> &b)
+{
+    std::vector<T> result(b.size());
+    for (int i = 0; i < result.size(); i++)
+    {
+        result[i] = alpha * b[i];
+    }
+    return result;
+}
+
+template <typename T>
+std::vector<T> operator*(const std::vector<T> &b, const T &alpha)
+{
+    std::vector<T> result(b.size());
+    for (int i = 0; i < result.size(); i++)
+    {
+        result[i] = alpha * b[i];
+    }
+    return result;
+}
 
 /***
- * Сложение двух векторов
- * @tparam T Тип элементов векторов
- * @param a Первый вектор
- * @param b Второй вектор
- * @return Результат сложения векторов
+ * Addition of two vectors
+ * @tparam T template type
+ * @param a first vector
+ * @param b second vector
+ * @return result of vector addition
  */
 template<typename T>
 std::vector<T> operator+(const std::vector<T> &a, const std::vector<T> &b)
@@ -88,11 +105,11 @@ std::ostream &operator<<(std::ostream &os, const std::vector<T> &b)
 }
 
 /***
- * Сравнение двух векторов
- * @tparam T Тип элементов векторов
- * @param vec1 Первый вектор
- * @param vec2 Второй вектор
- * @return Результат сравнения векторов
+ * Comparison of two vectors
+ * @tparam T template type
+ * @param vec1 first vector
+ * @param vec2 second vector
+ * @return result of vector comparison
  */
 template<typename T>
 bool operator==(const std::vector<T> &vec1, const std::vector<T> &vec2)
