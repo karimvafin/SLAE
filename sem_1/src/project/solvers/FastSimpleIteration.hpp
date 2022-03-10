@@ -1,25 +1,26 @@
 //
-// Created by petrov on 19.02.2022.
+// Created by Карим Вафин on 07.03.2022.
 //
 
-#ifndef SLAE_SIMPLEITERATION_HPP
-#define SLAE_SIMPLEITERATION_HPP
+#ifndef MY_PROJECT_FASTSIMPLEITERATION_HPP
+#define MY_PROJECT_FASTSIMPLEITERATION_HPP
 
 #include "project/SlaeBaseException.hpp"
 #include "../sparse/CSR.hpp"
 #include "project/utility/Norm.hpp"
 #include "project/utility/overloads.hpp"
+#include "project/Chebyshev/Chebyshev.h"
 
-template<typename T>
-std::vector<T> SimpleIteration(const CSR<T> &A, const std::vector<T> &b, const std::vector<T> &initialState,
-                               const T &tao, const T &tolerance)
+template<typename T, int powOf2>
+std::vector<T> FastSimpleIteration(const CSR<T> &A, const std::vector<T> &b, const std::vector<T> &initialState,
+                                   std::pair<T, T> &borders)
 {
 #ifndef NDEBUG
     if (A.get_row_size() != b.size())
     {
         std::stringstream buff;
         buff << "Matrix and column dimensions are not equal! Matrix size: " << A.get_row_size() << "x" << A.get_col_size()
-        << ". Column size: "<< b.size() << ". File: " << __FILE__ << ". Line: " << __LINE__;
+             << ". Column size: "<< b.size() << ". File: " << __FILE__ << ". Line: " << __LINE__;
 
         throw Slae::SlaeBaseExceptionCpp(buff.str());
     }
@@ -44,16 +45,17 @@ std::vector<T> SimpleIteration(const CSR<T> &A, const std::vector<T> &b, const s
     }
 #endif //NDEBUG
 
+    std::vector<T> tao_roots = ChebyshevPolynomial<T, powOf2>(borders);
     std::vector<T> currentState = initialState;
     std::vector<T> r = A * currentState - b;
 
-    while (norm(r, NormType::ThirdNorm) > tolerance)
+    for (int i = 0; i < powOf2; i++)
     {
-        currentState = currentState - tao * r;
+        currentState = currentState - tao_roots[i] * r;
         r = A * currentState - b;
     }
 
     return currentState;
 }
 
-#endif//SLAE_SIMPLEITERATION_HPP
+#endif //MY_PROJECT_FASTSIMPLEITERATION_HPP
