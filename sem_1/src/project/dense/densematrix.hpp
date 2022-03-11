@@ -17,21 +17,21 @@ public:
 
 private:
 
-    std::vector<T> matrix;
-    idx_t H, W;
+    std::vector<T> matrix_;
+    idx_t row_size_, col_size_;
 
 public:
     DenseMatrix(const idx_t &h, const idx_t& w)
     {
-        H = h;
-        W = w;
-        matrix.resize(h * w);
+        row_size_ = h;
+        col_size_ = w;
+        matrix_.resize(h * w);
     }
 
     DenseMatrix(const idx_t &h, const idx_t& w, const std::set<Triplet<T>>& in)
     {
-        H = h;
-        W = w;
+        row_size_ = h;
+        col_size_ = w;
         if (in.size() > h * w)
         {
             std::stringstream buff;
@@ -42,10 +42,10 @@ public:
         }
 
         std::vector<T> vec(h * w, static_cast<T>(0));
-        matrix = vec;
+        matrix_ = vec;
         for (auto &elem : in)
         {
-            matrix[elem.i * W + elem.j] = elem.value;
+            matrix_[elem.i * col_size_ + elem.j] = elem.value;
         }
 
     }
@@ -53,41 +53,41 @@ public:
     elm_t& operator()(const idx_t& i, const idx_t& j)
     {
 #ifndef NDEBUG
-        if (i * W + j > matrix.size())
+        if (i * col_size_ + j > matrix_.size())
         {
             std::stringstream buff;
             buff << "Index exceeds matrix size! Received index: " << i << "x" << j << ". Matrix size: "
-                 << H << "x" << W << ". File: " << __FILE__ << ". Line: " << __LINE__;
+                 << row_size_ << "x" << col_size_ << ". File: " << __FILE__ << ". Line: " << __LINE__;
 
             throw Slae::SlaeBaseExceptionCpp(buff.str());
         }
 #endif //NDEBUG
-        return matrix[i * W + j];
+        return matrix_[i * col_size_ + j];
     }
 
     const elm_t& operator()(const idx_t& i, const idx_t& j) const
     {
 #ifndef NDEBUG
-        if (i * W + j > matrix.size())
+        if (i * col_size_ + j > matrix_.size())
         {
             std::stringstream buff;
             buff << "Index exceeds matrix size! Received index: " << i << "x" << j << ". Matrix size: "
-                 << H << "x" << W << ". File: " << __FILE__ << ". Line: " << __LINE__;
+                 << row_size_ << "x" << col_size_ << ". File: " << __FILE__ << ". Line: " << __LINE__;
 
             throw Slae::SlaeBaseExceptionCpp(buff.str());
         }
 #endif //NDEBUG
-        return matrix[i * W + j];
+        return matrix_[i * col_size_ + j];
     }
 
-    [[nodiscard]] const idx_t& sizeH() const
+    [[nodiscard]] const idx_t& get_row_size() const
     {
-        return H;
+        return row_size_;
     }
 
-    [[nodiscard]] const idx_t& sizeW() const
+    [[nodiscard]] const idx_t& get_col_size() const
     {
-        return W;
+        return col_size_;
     }
 
     void swap(const idx_t& first, const idx_t& second)
@@ -100,38 +100,39 @@ public:
             throw Slae::SlaeBaseExceptionCpp(buff.str());
         }
 
-        if (first > H || second > H)
+        if (first > row_size_ || second > row_size_)
         {
             std::stringstream buff;
             buff << "Index exceeds matrix row size! Received indexes: " << first << " and " << second
-                 << ". Matrix size: " << H << "x" << W << ". File: " << __FILE__ << ". Line: " << __LINE__;
+                 << ". Matrix size: " << row_size_ << "x" << col_size_ << ". File: " << __FILE__
+                 << ". Line: " << __LINE__;
 
             throw Slae::SlaeBaseExceptionCpp(buff.str());
         }
 
-        std::vector<T> tmp(W);
+        std::vector<T> tmp(col_size_);
 
-        for (int i = 0; i < W; ++i)
+        for (int i = 0; i < col_size_; ++i)
         {
-            tmp[i] = matrix[(first - 1) * W + i];
+            tmp[i] = matrix_[(first - 1) * col_size_ + i];
         }
 
-        for (int i = 0; i < W; ++i)
+        for (int i = 0; i < col_size_; ++i)
         {
-            matrix[(first - 1) * W + i] = matrix[(second - 1) * W + i];
+            matrix_[(first - 1) * col_size_ + i] = matrix_[(second - 1) * col_size_ + i];
         }
 
-        for (int i = 0; i < W; ++i)
+        for (int i = 0; i < col_size_; ++i)
         {
-            matrix[(second - 1) * W + i] = tmp[i];
+            matrix_[(second - 1) * col_size_ + i] = tmp[i];
         }
 
     }
 
     void deleteLastRow()
     {
-        matrix.erase(matrix.end() - W, matrix.end());
-        H--;
+        matrix_.erase(matrix_.end() - col_size_, matrix_.end());
+        row_size_--;
     }
 
 };
@@ -139,9 +140,9 @@ public:
 template<typename T>
 std::ostream &operator<<(std::ostream &os, const DenseMatrix<T> &A)
 {
-    for (int i = 0; i < A.sizeH(); ++i)
+    for (int i = 0; i < A.get_row_size(); ++i)
     {
-        for (int j = 0; j < A.sizeW(); ++j)
+        for (int j = 0; j < A.get_col_size(); ++j)
             os << A(i, j) << " ";
         os << std::endl;
     }
