@@ -21,6 +21,12 @@ private:
     idx_t row_size_, col_size_;
 
 public:
+
+    /***
+     *
+     * @param h
+     * @param w
+     */
     DenseMatrix(const idx_t &h, const idx_t& w)
     {
         row_size_ = h;
@@ -28,6 +34,28 @@ public:
         matrix_.resize(h * w);
     }
 
+
+    /***
+     *
+     * @param h
+     * @param w
+     */
+    DenseMatrix(const idx_t &h, const idx_t& w, T fill)
+    {
+        row_size_ = h;
+        col_size_ = w;
+        matrix_.resize(h * w);
+        for (int i = 0; i < h * w; i++)
+            matrix_[i] = fill;
+    }
+
+
+    /***
+     *
+     * @param h
+     * @param w
+     * @param in
+     */
     DenseMatrix(const idx_t &h, const idx_t& w, const std::set<Triplet<T>>& in)
     {
         row_size_ = h;
@@ -50,6 +78,13 @@ public:
 
     }
 
+
+    /***
+     *
+     * @param i
+     * @param j
+     * @return
+     */
     elm_t& operator()(const idx_t& i, const idx_t& j)
     {
 #ifndef NDEBUG
@@ -65,6 +100,13 @@ public:
         return matrix_[i * col_size_ + j];
     }
 
+
+    /***
+     *
+     * @param i
+     * @param j
+     * @return
+     */
     const elm_t& operator()(const idx_t& i, const idx_t& j) const
     {
 #ifndef NDEBUG
@@ -80,16 +122,58 @@ public:
         return matrix_[i * col_size_ + j];
     }
 
+
+    /***
+     *
+     * @return
+     */
     [[nodiscard]] const idx_t& get_row_size() const
     {
         return row_size_;
     }
 
+
+    /***
+     *
+     * @return
+     */
     [[nodiscard]] const idx_t& get_col_size() const
     {
         return col_size_;
     }
 
+
+    /***
+     * Return matrix column with index i
+     * @param i column index (i <= col_size, begins from 0)
+     * @return vector -- matrix column
+     */
+    std::vector<T> get_col(unsigned i) const
+    {
+#ifndef NDEBUG
+        if (i >= col_size_)
+        {
+            std::stringstream buff;
+            buff << "Index exceeds matrix col_size! Received index: " << i << ". Matrix size: "
+                 << row_size_ << "x" << col_size_ << ". File: " << __FILE__ << ". Line: " << __LINE__;
+
+            throw Slae::SlaeBaseExceptionCpp(buff.str());
+        }
+#endif //NDEBUG
+        std::vector<T> col(row_size_);
+
+        for (unsigned j = 0; j < row_size_; j++)
+            col[j] = matrix_[j * col_size_ + i];
+
+        return col;
+    }
+
+
+    /***
+     *
+     * @param first
+     * @param second
+     */
     void swap(const idx_t& first, const idx_t& second)
     {
         if (first == second)
@@ -129,6 +213,10 @@ public:
 
     }
 
+
+    /***
+     * Deletes last row in matrix
+     */
     void deleteLastRow()
     {
         matrix_.erase(matrix_.end() - col_size_, matrix_.end());
@@ -137,6 +225,14 @@ public:
 
 };
 
+
+/***
+ *
+ * @tparam T
+ * @param os
+ * @param A
+ * @return
+ */
 template<typename T>
 std::ostream &operator<<(std::ostream &os, const DenseMatrix<T> &A)
 {
