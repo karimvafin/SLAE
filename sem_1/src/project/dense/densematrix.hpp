@@ -34,6 +34,21 @@ public:
         matrix_.resize(h * w);
     }
 
+    /***
+     *
+     * @param h
+     * @param w
+     */
+    DenseMatrix(const idx_t &h, const idx_t& w, const std::vector<T> &data)
+    {
+        row_size_ = h;
+        col_size_ = w;
+        matrix_.resize(h * w);
+        for (int i = 0; i < data.size(); i++)
+        {
+            matrix_[i] = data.at(i);
+        }
+    }
 
     /***
      *
@@ -244,6 +259,23 @@ std::ostream &operator<<(std::ostream &os, const DenseMatrix<T> &A)
     }
 
     return os;
+}
+
+template <typename T>
+DenseMatrix<T> operator*(const DenseMatrix<T> &A, const DenseMatrix<T> &B)
+{
+    DenseMatrix<T> result(A.get_row_size(), B.get_col_size(), 0);
+
+    for (int i = 0; i < A.get_row_size(); i++)
+    {
+        for (int j = 0; j < B.get_col_size(); j++)
+        {
+            for (int k = 0; k < A.get_col_size(); k++)
+                result(i, j) += A(i, k) * B(k, j);
+        }
+    }
+
+    return result;
 }
 
 #endif//SLAE_DENSEMATRIX_HPP
