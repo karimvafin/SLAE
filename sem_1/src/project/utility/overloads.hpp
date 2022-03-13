@@ -7,6 +7,7 @@
 #include <iosfwd>
 #include <vector>
 #include "operations.cpp"
+#include "project/SlaeBaseException.hpp"
 
 /***
  * Scalar product of two vectors
@@ -18,10 +19,19 @@
 template<typename T>
 T operator*(const std::vector<T> &a, const std::vector<T> &b)
 {
-    std::vector<T> result(a.size());
+    if (a.size() != b.size())
+    {
+        std::stringstream buff;
+        buff << "Vector dimensions are not equal! Received vector1 size: " << a.size() << ". Vector2 size: "
+             << b.size() << ". File: " << __FILE__ << ". Line: " << __LINE__;
+
+        throw Slae::SlaeBaseExceptionCpp(buff.str());
+    }
+
+    T result = 0;
     for (int i = 0; i < a.size(); i++)
     {
-        result[i] = a[i] * b[i];
+        result += a[i] * b[i];
     }
     return result;
 }
