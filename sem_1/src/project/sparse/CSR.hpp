@@ -29,7 +29,7 @@ private:
     friend std::vector<TT> Jacobi(const CSR<TT> &A, const std::vector<TT> &b, const std::vector<TT> &initialState, const TT &tolerance);
 
     template<typename TT>
-    friend std::vector<TT> GaussSeidel(const CSR<TT> &A, const std::vector<TT> &b, const std::vector<TT> &initialState, const TT &tolerance);
+    friend std::vector<TT> GaussSeidelIteration(const CSR<TT> &A, const std::vector<TT> &b, std::vector<TT> initialState);
 
 public:
 
