@@ -9,7 +9,6 @@
 #include "../sparse/CSR.hpp"
 #include "project/utility/Norm.hpp"
 #include "project/utility/overloads.hpp"
-#include <iostream>
 
 template<typename T>
 std::vector<T> SGD(const CSR<T> &A, const std::vector<T> &b, const std::vector<T> &initialState, const T &tolerance)
@@ -47,14 +46,12 @@ std::vector<T> SGD(const CSR<T> &A, const std::vector<T> &b, const std::vector<T
     std::vector<T> currentState = initialState;
     std::vector<T> r = A * currentState - b;
     T tao;
-    std::vector<double> sol = {4., 3., 1.};;
 
     while (norm(r, NormType::ThirdNorm) > tolerance)
     {
         tao = (r * r) / (r * (A * r));
         currentState = currentState - tao * r;
         r = A * currentState - b;
-        std::cout << norm(currentState - sol, NormType::ThirdNorm) << " ";
     }
 
     return currentState;
