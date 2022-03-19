@@ -15,7 +15,7 @@ enum class NormType
 };
 
 template <typename T>
-const T& norm(const std::vector<T>& vector, NormType normType)
+T norm(const std::vector<T>& vector, NormType normType)
 {
     T norm = static_cast<T>(0);
     if (normType == NormType::FirstNorm)
