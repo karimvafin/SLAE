@@ -10,6 +10,8 @@
 #include "project/utility/Norm.hpp"
 #include "project/utility/overloads.hpp"
 #include "project/Chebyshev/Chebyshev.h"
+#include <iostream>
+#include <cmath>
 
 template<typename T, int powOf2>
 std::vector<T> FastSimpleIteration(const CSR<T> &A, const std::vector<T> &b, const std::vector<T> &initialState,
@@ -45,13 +47,16 @@ std::vector<T> FastSimpleIteration(const CSR<T> &A, const std::vector<T> &b, con
     }
 #endif //NDEBUG
 
-    std::vector<T> tao_roots = ChebyshevPolynomial<T, powOf2>(borders);
+    ChebyshevPolynomial<T, powOf2> pol;
+    std::vector<T> tao_roots = pol.CalculateRoots(borders);
     std::vector<T> currentState = initialState;
     std::vector<T> r = A * currentState - b;
+    std::vector<double> sol = {5., 6.};
 
-    for (int i = 0; i < powOf2; i++)
+    for (int i = 0; i < pow(2, powOf2); i++)
     {
-        currentState = currentState - tao_roots[i] * r;
+        std::cout << norm(currentState - sol, NormType::ThirdNorm) << " ";
+        currentState = currentState - 1 / tao_roots[i] * r;
         r = A * currentState - b;
     }
 
