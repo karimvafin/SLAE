@@ -34,6 +34,20 @@ public:
         matrix_.resize(h * w);
     }
 
+    DenseMatrix(const DenseMatrix<T>& matrix)
+    {
+        row_size_ = matrix.get_row_size();
+        col_size_ = matrix.get_col_size();
+        matrix_.resize(row_size_ * col_size_);
+        for (int j = 0; j < col_size_; j++)
+        {
+            for (int i = 0; i < row_size_; i++)
+            {
+                matrix_[i * col_size_ + j] = matrix(i, j);
+            }
+        }
+    }
+
     /***
      *
      * @param h
