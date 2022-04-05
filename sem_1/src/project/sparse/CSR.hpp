@@ -102,6 +102,7 @@ public:
         return static_cast<elm_t>(0);
     }
 
+
     /***
      * Operator of matrix and column multiplication
      * @param b column to multiplicate
