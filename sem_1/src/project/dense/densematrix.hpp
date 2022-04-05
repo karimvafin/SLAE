@@ -10,7 +10,8 @@
 #include "project/SlaeBaseException.hpp"
 
 template<typename T>
-class DenseMatrix{
+class DenseMatrix
+{
 public:
     using elm_t = T;
     using idx_t = std::size_t;
@@ -65,9 +66,11 @@ public:
     }
 
     /***
-     *
-     * @param h
-     * @param w
+     * Fills matrix with one value
+     * @param h    -- row size
+     * @param w    -- col size
+     * @param fill -- value
+     * @return dense matrix filled by value
      */
     DenseMatrix(const idx_t &h, const idx_t& w, T fill)
     {
@@ -76,6 +79,18 @@ public:
         matrix_.resize(h * w);
         for (int i = 0; i < h * w; i++)
             matrix_[i] = fill;
+    }
+
+    /***
+     * Unit matrix
+     * @param h -- matrix size
+     * @return dense unit matrix
+     */
+    static DenseMatrix<T> unit_matrix(const idx_t &h)
+    {
+        DenseMatrix<T> matrix(h, h, 0);
+        for (int i = 0; i < h; i++) matrix(i, i) = 1;
+        return matrix;
     }
 
 
@@ -109,10 +124,10 @@ public:
 
 
     /***
-     *
+     * Non-const access operator
      * @param i
      * @param j
-     * @return
+     * @return (i, j) element
      */
     elm_t& operator()(const idx_t& i, const idx_t& j)
     {
@@ -131,7 +146,7 @@ public:
 
 
     /***
-     *
+     * Const access operator
      * @param i
      * @param j
      * @return
@@ -153,8 +168,8 @@ public:
 
 
     /***
-     *
-     * @return
+     * Returns row size
+     * @return row size
      */
     [[nodiscard]] const idx_t& get_row_size() const
     {
@@ -163,8 +178,8 @@ public:
 
 
     /***
-     *
-     * @return
+     * Column size
+     * @return column size
      */
     [[nodiscard]] const idx_t& get_col_size() const
     {
@@ -199,7 +214,7 @@ public:
 
 
     /***
-     *
+     * Swaps 2 rows
      * @param first
      * @param second
      */
@@ -256,11 +271,11 @@ public:
 
 
 /***
- *
+ * Matrix output
  * @tparam T
  * @param os
  * @param A
- * @return
+ * @return stream
  */
 template<typename T>
 std::ostream &operator<<(std::ostream &os, const DenseMatrix<T> &A)
@@ -275,6 +290,13 @@ std::ostream &operator<<(std::ostream &os, const DenseMatrix<T> &A)
     return os;
 }
 
+/***
+ * Dense matrix multiplication
+ * @tparam T
+ * @param A
+ * @param B
+ * @return dense matrix -- result of multiplication
+ */
 template <typename T>
 DenseMatrix<T> operator*(const DenseMatrix<T> &A, const DenseMatrix<T> &B)
 {
