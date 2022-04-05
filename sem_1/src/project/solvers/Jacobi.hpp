@@ -11,6 +11,35 @@
 template<typename T>
 std::vector<T> Jacobi(const CSR<T> &A, const std::vector<T> &b, const std::vector<T> &initialState, const T &tolerance)
 {
+#ifndef NDEBUG
+    if (A.get_row_size() != b.size())
+    {
+        std::stringstream buff;
+        buff << "Matrix and column dimensions are not equal! Matrix size: " << A.get_row_size() << "x" << A.get_col_size()
+             << ". Column size: "<< b.size() << ". File: " << __FILE__ << ". Line: " << __LINE__;
+
+        throw Slae::SlaeBaseExceptionCpp(buff.str());
+    }
+
+    if (A.get_row_size() != A.get_col_size())
+    {
+        std::stringstream buff;
+        buff << "Matrix dimensions are not equal! Matrix size: " << A.get_row_size() << "x" << A.get_col_size()
+             << ". File: " << __FILE__ << ". Line: " << __LINE__;
+
+        throw Slae::SlaeBaseExceptionCpp(buff.str());
+    }
+
+    if (initialState.size() != b.size())
+    {
+        std::stringstream buff;
+        buff << "Vector of constant terms and initial state vector dimensions are not equal! Vector b size: "
+             << b.size() << ". Initial state column size: "<< initialState.size() << ". File: "
+             << __FILE__ << ". Line: " << __LINE__;
+
+        throw Slae::SlaeBaseExceptionCpp(buff.str());
+    }
+#endif //NDEBUG
     std::vector<T> r = A * initialState - b;
     std::vector<T> currentState = initialState;
     std::vector<T> tempState(currentState.size());
@@ -31,7 +60,7 @@ std::vector<T> Jacobi(const CSR<T> &A, const std::vector<T> &b, const std::vecto
             }
             tempState[i] = (b[i] - sum) / A(i, i);
         }
-
+        std::cout << norm(r, NormType::ThirdNorm) << std::endl;
         currentState = tempState;
         r = A * currentState - b;
     }
