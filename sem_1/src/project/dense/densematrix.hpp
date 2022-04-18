@@ -122,7 +122,6 @@ public:
 
     }
 
-
     /***
      * Non-const access operator
      * @param i
@@ -164,6 +163,26 @@ public:
         }
 #endif //NDEBUG
         return matrix_[i * col_size_ + j];
+    }
+
+    std::vector<T> operator*(const std::vector<T>& vec)
+    {
+#ifndef NDEBUG
+        if (col_size_ != vec.size())
+        {
+            std::stringstream buff;
+            buff << "Matrix and vector dimensions are not equal! Vector size: " << vec.size() << ". Matrix size: "
+                 << row_size_ << "x" << col_size_ << ". File: " << __FILE__ << ". Line: " << __LINE__;
+
+            throw Slae::SlaeBaseExceptionCpp(buff.str());
+        }
+#endif //NDEBUG
+        std::vector<T> result(row_size_, 0);
+        for (int i = 0; i < row_size_; i++)
+            for (int j = 0; j < col_size_; j++)
+                result[i] += matrix_[i * col_size_ + j] * vec[j];
+
+        return result;
     }
 
 
@@ -212,6 +231,31 @@ public:
         return col;
     }
 
+
+    /***
+ * Return matrix row with index i
+ * @param i row index (i <= row_size, begins from 0)
+ * @return vector -- matrix row
+ */
+    std::vector<T> get_row(unsigned i) const
+    {
+#ifndef NDEBUG
+        if (i >= row_size_)
+        {
+            std::stringstream buff;
+            buff << "Index exceeds matrix row_size! Received index: " << i << ". Matrix size: "
+                 << row_size_ << "x" << col_size_ << ". File: " << __FILE__ << ". Line: " << __LINE__;
+
+            throw Slae::SlaeBaseExceptionCpp(buff.str());
+        }
+#endif //NDEBUG
+        std::vector<T> row(col_size_);
+
+        for (unsigned j = 0; j < row_size_; j++)
+            row[j] = matrix_[i * col_size_ + j];
+
+        return row;
+    }
 
     /***
      * Swaps 2 rows
@@ -265,6 +309,21 @@ public:
     {
         matrix_.erase(matrix_.end() - col_size_, matrix_.end());
         row_size_--;
+    }
+
+    DenseMatrix<T> transpose()
+    {
+        DenseMatrix<T> tr(col_size_, row_size_);
+        for (size_t i = 0; i < row_size_; ++i)
+        {
+            for (size_t j = 0; j < col_size_; ++j)
+            {
+                tr(i, j) = matrix_[j * col_size_ + i];
+                tr(j, i) = matrix_[i * col_size_ + j];
+            }
+        }
+
+        return tr;
     }
 
 };
