@@ -82,8 +82,6 @@ std::vector<double> GMRES(const CSR<double>& A, const std::vector<double>& b, co
             GivensRotation(cs, H, z, i - 1);
             if (std::abs(z[i]) < tolerance)
             {
-                std::cout << "z[i] = " << z[i] << std::endl;
-                std::cout << "i = " << i << std::endl;
                 std::vector<double> y = ReverseGauss(H, z, i);
                 for (int j = 0; j < i; j++)
                     currentState = currentState -  y[j] * V.get_col(j);
@@ -100,7 +98,6 @@ std::vector<double> GMRES(const CSR<double>& A, const std::vector<double>& b, co
         r = A * currentState - b;
     }
 
-    std::cout << "НЕВЯЗКА " << norm(A * currentState - b, NormType::ThirdNorm) << std::endl;
     return currentState;
 }
 
