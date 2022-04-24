@@ -257,6 +257,33 @@ public:
         return row;
     }
 
+    void write_col(std::vector<T> col, const int& i)
+    {
+#ifndef NDEBUG
+        if (i > col_size_ - 1)
+        {
+            std::stringstream buff;
+            buff << "Method write_col: Index exceeds matrix col_size! Received index: " << i << ". Matrix size: "
+                 << row_size_ << "x" << col_size_ << ". File: " << __FILE__ << ". Line: " << __LINE__;
+
+            throw Slae::SlaeBaseExceptionCpp(buff.str());
+        }
+        if (col.size() > row_size_)
+        {
+            std::stringstream buff;
+            buff << "Method write_col: col.size() exceeds matrix row_size! Received col.size(): " << col.size()
+            << ". Matrix size: " << row_size_ << "x" << col_size_ << ". File: " << __FILE__ << ". Line: " << __LINE__;
+
+            throw Slae::SlaeBaseExceptionCpp(buff.str());
+        }
+#endif //NDEBUG
+
+        for (int j = 0; j < col.size(); j++)
+        {
+            matrix_[j * col_size_ + i] = col[j];
+        }
+    }
+
     /***
      * Swaps 2 rows
      * @param first
