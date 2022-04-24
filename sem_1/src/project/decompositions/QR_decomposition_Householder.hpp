@@ -8,6 +8,7 @@
 #include "project/dense/densematrix.hpp"
 #include "project/utility/overloads.hpp"
 #include <project/utility/Norm.hpp>
+#include "project/utility/operations.hpp"
 #include <cmath>
 
 int kronecker(int i, int j)
@@ -22,14 +23,12 @@ std::pair<DenseMatrix <T>, DenseMatrix <T>> QR_decomposition_Householder(const D
     int m = A.get_row_size();
     int n = A.get_col_size();
 
-    T Q_ks;
-    T x_i_norm;                           // surface vector
-    std::vector<T> x_i(m);                // i column of matrix A
-    std::vector<T> e_i(m, 0);             // basis vector
-    DenseMatrix<T> R(A);                  // result matrix R
-    DenseMatrix<T> Q(m, m, 0);            // result matrix Q
-    DenseMatrix<T> R_next(m, n, 0);       // tmp matrix for multiplication
-    DenseMatrix<T> Q_next(m, m, 0);       // tmp matrix for multiplication
+    T alpha;
+    T beta;
+    std::vector<T> x_i(m);                // i column of matrix A m x n
+    std::vector<T> n_i;
+    DenseMatrix<T> R(A);                  // result matrix R m x n
+    DenseMatrix<T> Q(m, m, 0);            // result matrix Q m x m
 
     for (int i = 0; i < m; i++) Q(i, i) = 1;
 
@@ -39,31 +38,32 @@ std::pair<DenseMatrix <T>, DenseMatrix <T>> QR_decomposition_Householder(const D
 
         for (int k = 0; k < i; k++) x_i.erase(x_i.begin());
 
-        e_i[0] = static_cast<T>(1.);
-        x_i = x_i[0] / abs(x_i[0]) * norm(x_i, NormType::ThirdNorm) * e_i + x_i;
+        n_i = x_i;
+        if (!compare_double(abs(x_i[0]), 0))
+            n_i[0] += x_i[0] / abs(x_i[0]) * norm(x_i, NormType::ThirdNorm);
+        else
+            n_i[0] += norm(x_i, NormType::ThirdNorm);
 
-        // multiplication Q_i * A and Q_i * Q
-        for (int j = 0; j < m; j++)
+        // Q_i * R
+        alpha = 2. / (n_i * n_i);
+        for (int j = i; j < n; j++)
+        {
+            beta = 0;
             for (int k = i; k < m; k++)
-            {
-                R_next(k, j) = 0;
-                Q_next(k, j) = 0;
-                for (int s = 0; s < m - i; s++)
-                {
-                    Q_ks = kronecker(k - i, s) - 2. * x_i[k - i] * x_i[s] / (x_i * x_i);
-                    if (j >= i && j < n) R_next(k, j) += Q_ks * R(s + i, j);
-                    Q_next(k, j) += Q_ks * Q(s + i, j);
-                }
-            }
-
-        for (int j = 0; j < m; j++)
+                beta += R(k, j) * n_i[k - i];
             for (int k = i; k < m; k++)
-            {
-                if (j >= i && j < n) R(k, j) = R_next(k, j);
-                Q(k, j) = Q_next(k, j);
-            }
+                R(k, j) = R(k, j) - alpha * beta * n_i[k - i];
+        }
 
-        e_i.erase(e_i.begin());
+        // Q_i * Q
+        for (int j = 0; j < m; j++)
+        {
+            beta = 0;
+            for (int k = i; k < m; k++)
+                beta += Q(k, j) * n_i[k - i];
+            for (int k = i; k < m; k++)
+                Q(k, j) = Q(k, j) - alpha * beta * n_i[k - i];
+        }
     }
 
     T tmp;

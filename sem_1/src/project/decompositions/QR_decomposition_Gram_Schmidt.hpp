@@ -36,6 +36,7 @@ std::pair<DenseMatrix<T>, DenseMatrix<T>> QR_decomposition_Gram_Schmidt(const De
 
         for (int k = 0; k < A.get_row_size(); k++)
             sum[k] = 0;
+        for (int k = 0; k < A.get_row_size(); k++)
     }
 
     // add m - n vectors to basis
