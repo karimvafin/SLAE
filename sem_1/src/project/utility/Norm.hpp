@@ -7,12 +7,16 @@
 #include "vector"
 #include "cmath"
 
-enum class NormType
+enum NormType
 {
     FirstNorm = 1,
     SecondNorm = 2,
     ThirdNorm = 3,
 };
+
+template<int NormType, typename T>
+T norm(const std::vector<T>& vector);
+
 
 template <typename T>
 T norm(const std::vector<T>& vector, NormType normType)

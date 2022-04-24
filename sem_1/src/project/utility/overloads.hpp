@@ -6,7 +6,7 @@
 #define SLAE_OVERLOADS_HPP
 #include <iosfwd>
 #include <vector>
-#include "operations.cpp"
+#include "operations.hpp"
 #include "project/SlaeBaseException.hpp"
 
 /***
