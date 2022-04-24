@@ -14,7 +14,6 @@
 
 void KrylovSubspace(DenseMatrix<double>& V, DenseMatrix<double>& H, const CSR<double>& A, const int& k)
 {
-    std::vector<double> new_V;
     V.write_col(A * V.get_col(k), k + 1);
     for (int i = 0; i < k + 1; i++)
     {
