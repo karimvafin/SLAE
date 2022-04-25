@@ -40,7 +40,7 @@ void GivensRotation(std::vector<std::pair<double, double>>& cs, DenseMatrix<doub
 
     alpha = std::sqrt(H(k, k) * H(k, k) + H(k + 1, k) * H(k + 1, k));
     cos = H(k, k) / alpha;
-    sin = - H(k + 1, k) / std::sqrt(H(k, k) * H(k, k) + H(k + 1, k) * H(k + 1, k));
+    sin = - H(k + 1, k) / alpha;
 
     std::pair<double, double> a(cos, sin);
     cs[k] = a;
